@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}View Result - Result Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="result-view-card">
+        <div class="header">
+            <i class="fas fa-certificate fa-3x"></i>
+            <h1>Examination Result</h1>
+            <p>Academic Year: {{ result.academic_year }} | Semester: {{ result.semester }}</p>
+        </div>
+
+        <div class="student-info">
+            <div class="info-group">
+                <label>Student Name</label>
+                <div class="value">{{ result.student_name }}</div>
+            </div>
+            <div class="info-group">
+                <label>Student ID</label>
+                <div class="value">{{ result.student_id }}</div>
+            </div>
+        </div>
+
+        <div class="result-details">
+            <div class="subject-row">
+                <div class="subject">{{ result.subject_name }} ({{ result.subject_code }})</div>
+                <div class="grade-badge grade-{{ result.grade[0] }}">{{ result.grade }}</div>
+            </div>
+            <div class="marks-display">
+                <span class="marks">{{ result.marks }}</span>
+                <span class="total">/ 100</span>
+            </div>
+
+            <div class="status-badge status-{{ result.status }}">
+                {{ result.status|upper }}
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <p>This is a computer-generated result. For official transcripts, please contact the administration.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .result-view-card {
+        max-width: 600px;
+        margin: 40px auto;
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .header {
+        margin-bottom: 30px;
+        color: var(--primary-color);
+    }
+
+    .header h1 {
+        margin: 15px 0 5px;
+        font-size: 2rem;
+    }
+
+    .student-info {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .info-group label {
+        display: block;
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .info-group .value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .result-details {
+        padding: 30px 0;
+        border-top: 2px dashed #eee;
+        border-bottom: 2px dashed #eee;
+    }
+
+    .subject {
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin-bottom: 15px;
+    }
+
+    .grade-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: white;
+        background: #6c757d;
+    }
+
+    .grade-A {
+        background: #28a745;
+    }
+
+    .grade-B {
+        background: #17a2b8;
+    }
+
+    .grade-C {
+        background: #ffc107;
+        color: #333;
+    }
+
+    .grade-D {
+        background: #fd7e14;
+    }
+
+    .grade-F {
+        background: #dc3545;
+    }
+
+    .marks-display {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #333;
+        margin: 20px 0;
+    }
+
+    .marks-display .total {
+        font-size: 1.5rem;
+        color: #999;
+        font-weight: 400;
+    }
+
+    .footer-note {
+        margin-top: 30px;
+        font-size: 0.85rem;
+        color: #999;
+    }
+</style>
+{% endblock %}

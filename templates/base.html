@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Result Management System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    {% if session.user_id or session.student_id %}
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Result Management System</span>
+            </div>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-menu">
+                {% if session.role == 'student' %}
+                <li><a href="{{ url_for('student_dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="{{ url_for('student_my_results') }}"><i class="fas fa-chart-bar"></i> My Results</a></li>
+                <li><a href="{{ url_for('student_my_courses') }}"><i class="fas fa-graduation-cap"></i> My Registered
+                        Courses</a></li>
+                <li><a href="{{ url_for('student_course_register') }}"><i class="fas fa-clipboard-list"></i> Course
+                        Registration</a></li>
+                {% else %}
+                <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="{{ url_for('students') }}"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="{{ url_for('subjects') }}"><i class="fas fa-book"></i> Subjects</a></li>
+                <li><a href="{{ url_for('results') }}"><i class="fas fa-chart-bar"></i> Results</a></li>
+                <li><a href="{{ url_for('reports') }}"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="{{ url_for('ai_insights') }}"><i class="fas fa-brain"></i> AI Insights</a></li>
+                {% if session.role == 'admin' %}
+                <li class="dropdown">
+                    <a href="#"><i class="fas fa-cog"></i> Admin <i class="fas fa-caret-down"></i></a>
+                    <div class="dropdown-content">
+                        <a href="{{ url_for('users') }}">Manage Users</a>
+                        <a href="{{ url_for('classes') }}">Manage Classes</a>
+                        <a href="{{ url_for('faculties') }}">Manage Faculties</a>
+                        <a href="{{ url_for('departments') }}">Manage Departments</a>
+                        <a href="{{ url_for('offerings') }}">Course Offerings</a>
+                        <a href="{{ url_for('admin_registrations') }}">Manage Registrations</a>
+                        <a href="{{ url_for('audit_log') }}">Audit Log</a>
+                    </div>
+                </li>
+                {% endif %}
+                {% endif %}
+            </ul>
+            <div class="nav-user">
+                {% if session.role == 'student' %}
+                <span><i class="fas fa-user-circle"></i> {{ session.student_name }} (Student)</span>
+                <a href="{{ url_for('student_logout') }}" class="btn-logout"><i class="fas fa-sign-out-alt"></i>
+                    Logout</a>
+                {% else %}
+                <span><i class="fas fa-user-circle"></i> {{ session.username }} ({{ session.role|capitalize }})</span>
+                <a href="{{ url_for('logout') }}" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                {{ message }}
+                <button class="close-alert" onclick="this.parentElement.remove()">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; <span id="current-year"></span>Result Management System. All rights reserved.</p>
+        </div>
+
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

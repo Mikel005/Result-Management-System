@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Edit Faculty - Result Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-edit"></i> Edit Faculty</h1>
+    </div>
+
+    <div class="card">
+        <form method="POST" class="form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="name">Faculty Name *</label>
+                <input type="text" id="name" name="name" required value="{{ faculty.name }}"
+                    placeholder="e.g., Faculty of Science">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Faculty
+                </button>
+                <a href="{{ url_for('faculties') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

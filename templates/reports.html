@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Reports - Result Management System{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-file-alt"></i> Reports & Analytics</h1>
+        <a href="{{ url_for('export_results') }}" class="btn btn-primary">
+            <i class="fas fa-download"></i> Export All Results
+        </a>
+    </div>
+
+    <div class="reports-grid">
+        <div class="card">
+            <h3><i class="fas fa-chart-pie"></i> Grade Distribution</h3>
+            <canvas id="gradeChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-chart-bar"></i> Subject-wise Average</h3>
+            <canvas id="subjectChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-school"></i> Class Performance</h3>
+            <canvas id="classChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fetch analytics data
+fetch('/api/analytics')
+    .then(response => response.json())
+    .then(data => {
+        // Grade Distribution Chart
+        const gradeCtx = document.getElementById('gradeChart').getContext('2d');
+        new Chart(gradeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: data.grade_distribution.map(g => g.grade),
+                datasets: [{
+                    data: data.grade_distribution.map(g => g.count),
+                    backgroundColor: [
+                        '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Subject Average Chart
+        const subjectCtx = document.getElementById('subjectChart').getContext('2d');
+        new Chart(subjectCtx, {
+            type: 'bar',
+            data: {
+                labels: data.subject_average.map(s => s.subject_name),
+                datasets: [{
+                    label: 'Average Marks',
+                    data: data.subject_average.map(s => s.avg_marks.toFixed(2)),
+                    backgroundColor: '#667eea'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Class Performance Chart
+        const classCtx = document.getElementById('classChart').getContext('2d');
+        new Chart(classCtx, {
+            type: 'line',
+            data: {
+                labels: data.class_performance.map(c => c.class),
+                datasets: [{
+                    label: 'Average Marks',
+                    data: data.class_performance.map(c => c.avg_marks.toFixed(2)),
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

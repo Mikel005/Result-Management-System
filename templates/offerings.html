@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% block title %}Course Offerings{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="page-header">
+        <div>
+            <h1><i class="fas fa-layer-group"></i> Course Offerings</h1>
+            <p>Manage and assign subjects to teachers for specific academic sessions.</p>
+        </div>
+    </div>
+
+    <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px;">
+        <!-- Single/Multiple Addition Card -->
+        <div class="card">
+            <h3><i class="fas fa-plus-circle"></i> Add Subject Offering</h3>
+            <form method="POST" action="{{ url_for('add_offering') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group">
+                    <label><i class="fas fa-book"></i> Select Subjects</label>
+                    <p style="font-size: 0.8rem; color: var(--secondary); margin-bottom: 5px;">Hold Ctrl/Cmd to select
+                        multiple subjects</p>
+                    <select name="subject_code" required multiple size="8" class="form-control" style="height: auto;">
+                        {% for s in subjects %}
+                        <option value="{{ s.subject_code }}">{{ s.subject_name }} ({{ s.subject_code }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Semester</label>
+                        <select name="semester" required>
+                            <option value="first">First Semester</option>
+                            <option value="second">Second Semester</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Academic Year</label>
+                        <input type="text" name="academic_year" placeholder="e.g. 2024/2025" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Assign Teacher</label>
+                    <select name="teacher_id">
+                        <option value="">-- No Teacher Assigned --</option>
+                        {% for t in teachers %}
+                        <option value="{{ t.id }}">{{ t.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button class="btn btn-primary btn-block">Add Offerings</button>
+            </form>
+        </div>
+
+        <!-- Bulk Assign Card -->
+        <div class="card">
+            <h3><i class="fas fa-users-cog"></i> Bulk Assign by Class</h3>
+            <p style="color: var(--secondary); margin-bottom: 20px;">Quickly assign all subjects in a class to a
+                session.</p>
+
+            <form method="POST" action="{{ url_for('bulk_add_offering') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group">
+                    <label>Class</label>
+                    <select name="class_id" required>
+                        <option value="">-- Select Class --</option>
+                        {% for c in classes %}
+                        <option value="{{ c.id }}">{{ c.class_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Semester</label>
+                        <select name="semester" required>
+                            <option value="first">First Semester</option>
+                            <option value="second">Second Semester</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Academic Year</label>
+                        <input type="text" name="academic_year" placeholder="e.g. 2024/2025" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Assign Teacher (to all)</label>
+                    <select name="teacher_id">
+                        <option value="">-- No Teacher Assigned --</option>
+                        {% for t in teachers %}
+                        <option value="{{ t.id }}">{{ t.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button class="btn btn-secondary btn-block">Assign Class Subjects</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Offerings Table -->
+    <div class="card">
+        <h3><i class="fas fa-table"></i> Current Course Offerings</h3>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Code</th>
+                        <th>Semester</th>
+                        <th>Session</th>
+                        <th class="text-center">Registered</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in offerings %}
+                    <tr>
+                        <td><strong>{{ o.subject_name }}</strong></td>
+                        <td><span class="badge badge-info">{{ o.subject_code }}</span></td>
+                        <td>{{ o.semester|capitalize }}</td>
+                        <td>{{ o.academic_year }}</td>
+                        <td class="text-center">
+                            <span class="badge badge-success">{{ o.registered_count }} Students</span>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('delete_offering', offering_id=o.id) }}" class="btn-icon btn-danger"
+                                onclick="return confirm('Delete this offering?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No offerings found in the system.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th {
+        text-align: left;
+        padding: 15px;
+        border-bottom: 2px solid var(--border);
+        color: var(--secondary);
+    }
+
+    .data-table td {
+        padding: 15px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+    }
+
+    .btn-icon:hover {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}

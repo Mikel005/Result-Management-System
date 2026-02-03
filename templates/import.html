@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Import Results - Result Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-file-import"></i> Import Results</h1>
+    </div>
+
+    <div class="card">
+        <div class="import-info">
+            <h3><i class="fas fa-info-circle"></i> Import Instructions</h3>
+            <p>Upload a CSV file with the following columns:</p>
+            <ul>
+                <li><strong>student_id</strong> - Student ID (must exist in the system)</li>
+                <li><strong>subject_code</strong> - Subject code (must exist in the system)</li>
+                <li><strong>marks</strong> - Marks obtained (0-100)</li>
+                <li><strong>semester</strong> - Semester (e.g., First Semester)</li>
+                <li><strong>academic_year</strong> - Academic year (e.g., 2022/2023)</li>
+            </ul>
+            <p class="note"><i class="fas fa-exclamation-triangle"></i> Make sure all student IDs and subject codes
+                exist before importing.</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="file">Select CSV File *</label>
+                <input type="file" id="file" name="file" accept=".csv" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Upload & Import
+                </button>
+                <a href="{{ url_for('results') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3><i class="fas fa-file-csv"></i> Sample CSV Format</h3>
+        <pre class="code-block">student_id,subject_code,marks,semester,academic_year
+STU001,MATH101,85.5,First Semester,2024/2025
+STU002,ENG101,92.0,First Semester,2024/2025
+STU001,SCI101,78.5,First Semester,2024/2025</pre>
+    </div>
+</div>
+{% endblock %}

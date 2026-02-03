@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard - Student Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .student-dashboard .page-header {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-content h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: #1a202c;
+    }
+
+    .header-content p {
+        color: #718096;
+        font-size: 1.1rem;
+    }
+
+    .stats-card-premium {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.3s ease;
+        border: 1px solid #edf2f7;
+    }
+
+    .stats-card-premium:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .icon-box {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+    }
+
+    .stat-info h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: #1a202c;
+    }
+
+    .stat-info p {
+        margin: 0;
+        color: #718096;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    }
+
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 100px;
+        position: relative;
+    }
+
+    .profile-avatar {
+        width: 90px;
+        height: 90px;
+        background: white;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        color: #667eea;
+        position: absolute;
+        bottom: -45px;
+        left: 40px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        border: 4px solid white;
+    }
+
+    .profile-body {
+        padding: 60px 40px 40px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+
+    .info-item {
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 15px;
+    }
+
+    .info-item label {
+        display: block;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    .info-item .value {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 1.1rem;
+    }
+
+    .action-card-premium {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        text-align: center;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border: 2px dashed #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .action-card-premium:hover {
+        border-color: #667eea;
+        background: #f8faff;
+    }
+
+    .action-icon {
+        width: 80px;
+        height: 80px;
+        background: #ebf4ff;
+        color: #667eea;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+
+    .btn-premium {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 35px;
+        border-radius: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-premium:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container student-dashboard">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Hey, {{ student.name }}! 👋</h1>
+            <p>Here's how you're performing this session.</p>
+        </div>
+        <div class="current-date">
+            <span class="badge badge-info"><i class="fas fa-calendar-alt"></i> Session: {{ current_session }}</span>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stats-card-premium">
+            <div class="icon-box" style="background: #e0e7ff; color: #6366f1;">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ total_subjects }}</h3>
+                <p>Enrolled Subjects</p>
+            </div>
+        </div>
+        <div class="stats-card-premium">
+            <div class="icon-box" style="background: #fef3c7; color: #f59e0b;">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ avg_marks }}%</h3>
+                <p>Academic Average</p>
+            </div>
+        </div>
+        <div class="stats-card-premium">
+            <div class="icon-box" style="background: #dcfce7; color: #22c55e;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ total_results }}</h3>
+                <p>Approved Results</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+            </div>
+            <div class="profile-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Student ID</label>
+                        <div class="value">{{ student.student_id }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Current Class</label>
+                        <div class="value">{{ student.class }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Faculty</label>
+                        <div class="value">{{ student.faculty_name or 'N/A' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Department</label>
+                        <div class="value">{{ student.department_name or 'N/A' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-card-premium">
+            <div class="action-icon">
+                <i class="fas fa-file-invoice"></i>
+            </div>
+            <h2>View Full Statement</h2>
+            <p style="color: #718096; margin-bottom: 30px;">Access your detailed academic reports, grades, and semester
+                analysis.</p>
+            <a href="{{ url_for('student_my_results') }}" class="btn-premium">
+                Open Reports <i class="fas fa-external-link-alt" style="margin-left: 10px;"></i>
+            </a>
+            <div style="margin-top:12px;">
+                <a href="{{ url_for('student_course_register') }}" class="btn-premium" style="background:#34d399;">Register Courses <i class="fas fa-clipboard-list" style="margin-left:8px;"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - Result Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .register-page { display:flex; align-items:center; justify-content:center; min-height:100vh; background:#f7fafc; }
+        .register-box { background:white; padding:30px; border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,0.08); width:420px; }
+        .register-box h2 { margin:0 0 12px; }
+        .form-group { margin-bottom:12px; }
+        .form-group label { display:block; margin-bottom:6px; font-weight:600; }
+        .form-group input, .form-group select { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e2e8f0; }
+        .btn-primary { background:#667eea; color:white; padding:10px 14px; border-radius:8px; border:none; cursor:pointer; }
+    </style>
+</head>
+<body class="register-page">
+    <div class="register-box">
+        <h2>Student Registration</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="student_id">Student ID</label>
+                <input type="text" id="student_id" name="student_id" required placeholder="e.g. STU001">
+            </div>
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email (optional)</label>
+                <input type="email" id="email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="class">Class / Level (optional)</label>
+                <input type="text" id="class" name="class" placeholder="e.g. 300">
+            </div>
+            <div class="form-group">
+                <label for="department_id">Department (optional)</label>
+                <select id="department_id" name="department_id">
+                    <option value="">-- Select Department --</option>
+                    {% for d in departments %}
+                    <option value="{{ d.id }}">{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="pin">Choose a PIN (for portal access)</label>
+                <input type="password" id="pin" name="pin" required placeholder="4-8 digit PIN">
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
+                <a href="{{ url_for('student_login') }}" class="btn btn-secondary">Back to Login</a>
+                <button class="btn-primary">Register</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

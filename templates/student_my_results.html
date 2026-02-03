@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% block title %}Academic Transcript - Student Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --glass: rgba(255, 255, 255, 0.95);
+        --p-grad: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    body {
+        background: #f1f5f9;
+    }
+
+    .transcript-container {
+        padding: 40px 0;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .transcript-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .transcript-header {
+        background: var(--p-grad);
+        color: white;
+        padding: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-info h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -1px;
+    }
+
+    .header-info p {
+        opacity: 0.9;
+        font-size: 1.1rem;
+        margin-top: 5px;
+    }
+
+    .transcript-body {
+        padding: 40px;
+    }
+
+    .filter-bar {
+        background: #f8fafc;
+        padding: 20px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #edf2f7;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .filter-group select {
+        padding: 10px 15px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        font-weight: 500;
+        color: #4a5568;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .semester-block {
+        margin-bottom: 40px;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .semester-header {
+        background: #f8fafc;
+        padding: 15px 25px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .semester-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #1e293b;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .transcript-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .transcript-table th {
+        text-align: left;
+        padding: 15px 20px;
+        background: white;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .transcript-table td {
+        padding: 18px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.95rem;
+        color: #334155;
+    }
+
+    .score-badge {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1rem;
+    }
+
+    .grade-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        font-weight: 800;
+        color: white;
+        font-size: 0.9rem;
+    }
+
+    .grade-A {
+        background: #10b981;
+    }
+
+    .grade-B {
+        background: #3b82f6;
+    }
+
+    .grade-C {
+        background: #f59e0b;
+    }
+
+    .grade-D {
+        background: #6366f1;
+    }
+
+    .grade-F {
+        background: #ef4444;
+    }
+
+    .summary-footer {
+        background: #f8fafc;
+        padding: 15px 25px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 30px;
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+
+    .print-btn {
+        background: white;
+        color: #1e293b;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.2s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .print-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    @media print {
+        body {
+            background: white;
+        }
+
+        .transcript-container {
+            padding: 0;
+            max-width: 100%;
+        }
+
+        .transcript-card {
+            box-shadow: none;
+            border: none;
+        }
+
+        .filter-bar,
+        .print-btn,
+        .nav-container,
+        footer {
+            display: none !important;
+        }
+
+        .transcript-header {
+            background: black !important;
+            color: white !important;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="transcript-container">
+    <div class="transcript-card">
+        <div class="transcript-header">
+            <div class="header-info">
+                <h1>Official Academic Transcript</h1>
+                <p>Results for academic records of the student portal</p>
+            </div>
+            <button onclick="window.print()" class="print-btn">
+                <i class="fas fa-print"></i> Print Transcript
+            </button>
+        </div>
+
+        <div class="transcript-body">
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <i class="fas fa-filter" style="color: #94a3b8;"></i>
+                    <form id="filterForm" method="GET" style="display: flex; gap: 10px;">
+                        <select name="session" onchange="this.form.submit()">
+                            <option value="">All Sessions</option>
+                            {% for s in sessions %}
+                            <option value="{{ s }}" {% if selected_session==s %}selected{% endif %}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="semester" onchange="this.form.submit()">
+                            <option value="">All Semesters</option>
+                            {% for sem in semesters %}
+                            <option value="{{ sem }}" {% if selected_semester==sem %}selected{% endif %}>{{ sem }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+                <div class="student-meta" style="text-align: right;">
+                    <strong>{{ session.name }}</strong><br>
+                    <span style="color: #64748b; font-size: 0.9rem;">ID: {{ session.student_id }}</span>
+                </div>
+            </div>
+
+            {% if grouped_results %}
+            {% for group in grouped_results %}
+            <div class="semester-block">
+                <div class="semester-header">
+                    <h3>{{ group.academic_year }} | {{ group.semester|upper }} SEMESTER</h3>
+                </div>
+                <table class="transcript-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Course Title</th>
+                            <th>Unit</th>
+                            <th>Assign.</th>
+                            <th>Tests</th>
+                            <th>Exam</th>
+                            <th>Total</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in group.rows %}
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600;">{{ r.subject_name }}</div>
+                                <div style="font-size: 0.8rem; color: #94a3b8;">{{ r.subject_code }} • {{ r.course_type
+                                    }}</div>
+                            </td>
+                            <td>{{ r.unit }}</td>
+                            <td>{{ r.assignment or '0' }}</td>
+                            <td>{{ (r.test1 or 0) + (r.test2 or 0) }}</td>
+                            <td>{{ r.exam or '0' }}</td>
+                            <td><span class="score-badge">{{ r.marks }}</span></td>
+                            <td>
+                                <span class="grade-badge grade-{{ r.grade[0] if r.grade else 'F' }}">{{ r.grade
+                                    }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="summary-footer">
+                    <span>Total Units: {{ group.total_units }}</span>
+                    <span>Courses: {{ group.total_courses }}</span>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div style="padding: 100px 0; text-align: center;">
+                <i class="fas fa-file-invoice fa-4x" style="color: #e2e8f0; margin-bottom: 20px;"></i>
+                <h3 style="color: #94a3b8;">No academic records found</h3>
+                <p style="color: #cbd5e1;">Your approved results will appear here once released.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

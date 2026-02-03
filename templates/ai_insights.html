@@ -1,0 +1,483 @@
+{% extends 'base.html' %}
+{% block title %}AI Insights - Result Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ai-card {
+        border-left: 4px solid var(--primary);
+        animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .subtitle {
+        color: var(--secondary);
+        margin-bottom: 25px;
+        font-size: 14px;
+    }
+
+    .ai-tool {
+        display: flex;
+        gap: 15px;
+        align-items: end;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .ai-select,
+    .ai-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .ai-results {
+        margin-top: 20px;
+        padding: 25px;
+        background: var(--light);
+        border-radius: 12px;
+        display: none;
+    }
+
+    .ai-results.active {
+        display: block;
+        animation: fadeIn 0.4s ease;
+    }
+
+    .prediction-card,
+    .risk-card,
+    .recommendation-card,
+    .insight-card {
+        background: white;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        border-left: 4px solid;
+        box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .percentile-bar {
+        width: 100%;
+        height: 12px;
+        background: #e5e7eb;
+        border-radius: 6px;
+        overflow: hidden;
+        margin: 10px 0;
+    }
+
+    .percentile-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transition: width 0.8s ease;
+        border-radius: 6px;
+    }
+
+    /* Risk Levels */
+    .risk-card.high {
+        border-left-color: var(--danger);
+    }
+
+    .risk-card.medium {
+        border-left-color: var(--warning);
+    }
+
+    .risk-card.low {
+        border-left-color: var(--success);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-brain"></i> AI-Powered Insights</h1>
+        <p>Intelligent analytics and predictions powered by machine learning</p>
+    </div>
+
+    <!-- Student Performance Predictor -->
+    <div class="card ai-card">
+        <h2><i class="fas fa-crystal-ball"></i> Performance Predictor</h2>
+        <p class="subtitle">Predict future performance based on historical data</p>
+
+        <div class="ai-tool">
+            <div class="form-group">
+                <label for="predict-student">Select Student</label>
+                <select id="predict-student" class="ai-select">
+                    <option value="">Choose a student...</option>
+                    {% for student in students %}
+                    <option value="{{ student.student_id }}">{{ student.student_id }} - {{ student.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button onclick="predictPerformance()" class="btn btn-primary">
+                <i class="fas fa-magic"></i> Generate Prediction
+            </button>
+        </div>
+
+        <div id="prediction-results" class="ai-results"></div>
+    </div>
+
+    <!-- At-Risk Students -->
+    <div class="card ai-card">
+        <h2><i class="fas fa-exclamation-triangle"></i> At-Risk Student Detection</h2>
+        <p class="subtitle">Identify students who need additional support</p>
+
+        <div class="ai-tool">
+            <div class="form-group">
+                <label for="risk-threshold">Performance Threshold</label>
+                <input type="number" id="risk-threshold" value="60" min="0" max="100" class="ai-input">
+            </div>
+            <button onclick="findAtRiskStudents()" class="btn btn-warning">
+                <i class="fas fa-search"></i> Identify At-Risk Students
+            </button>
+        </div>
+
+        <div id="at-risk-results" class="ai-results"></div>
+    </div>
+
+    <!-- Personalized Recommendations -->
+    <div class="card ai-card">
+        <h2><i class="fas fa-lightbulb"></i> Personalized Recommendations</h2>
+        <p class="subtitle">AI-generated improvement suggestions</p>
+
+        <div class="ai-tool">
+            <div class="form-group">
+                <label for="recommend-student">Select Student</label>
+                <select id="recommend-student" class="ai-select">
+                    <option value="">Choose a student...</option>
+                    {% for student in students %}
+                    <option value="{{ student.student_id }}">{{ student.student_id }} - {{ student.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button onclick="getRecommendations()" class="btn btn-info">
+                <i class="fas fa-robot"></i> Generate Recommendations
+            </button>
+        </div>
+
+        <div id="recommendations-results" class="ai-results"></div>
+    </div>
+
+    <!-- Comparative Analysis -->
+    <div class="card ai-card">
+        <h2><i class="fas fa-balance-scale"></i> Comparative Analysis</h2>
+        <p class="subtitle">Compare student performance with class averages</p>
+
+        <div class="ai-tool">
+            <div class="form-group">
+                <label for="compare-student">Select Student</label>
+                <select id="compare-student" class="ai-select">
+                    <option value="">Choose a student...</option>
+                    {% for student in students %}
+                    <option value="{{ student.student_id }}">{{ student.student_id }} - {{ student.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button onclick="getComparativeInsights()" class="btn btn-primary">
+                <i class="fas fa-chart-line"></i> Compare Performance
+            </button>
+        </div>
+
+        <div id="comparative-results" class="ai-results"></div>
+    </div>
+
+    <!-- Class Insights -->
+    <div class="card ai-card">
+        <h2><i class="fas fa-users-cog"></i> Class Intelligence</h2>
+        <p class="subtitle">Comprehensive insights for entire classes</p>
+
+        <div class="ai-tool">
+            <div class="form-group">
+                <label for="class-select">Select Class</label>
+                <select id="class-select" class="ai-select">
+                    <option value="">Choose a class...</option>
+                    {% for class_name in classes %}
+                    <option value="{{ class_name }}">{{ class_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button onclick="getClassInsights()" class="btn btn-success">
+                <i class="fas fa-brain"></i> Analyze Class
+            </button>
+        </div>
+
+        <div id="class-insights-results" class="ai-results"></div>
+    </div>
+
+    <!-- Anomaly Detection -->
+    <div class="card ai-card">
+        <h2><i class="fas fa-shield-alt"></i> Anomaly Detection</h2>
+        <p class="subtitle">Detect unusual patterns and potential data errors</p>
+
+        <button onclick="detectAnomalies()" class="btn btn-danger">
+            <i class="fas fa-search-plus"></i> Scan for Anomalies
+        </button>
+
+        <div id="anomalies-results" class="ai-results"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Prediction
+    async function predictPerformance() {
+        const studentId = document.getElementById('predict-student').value;
+        const resultsDiv = document.getElementById('prediction-results');
+
+        if (!studentId) {
+            alert('Please select a student');
+            return;
+        }
+
+        resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><br>Analyzing patterns...</div>';
+        resultsDiv.classList.add('active');
+
+        try {
+            const response = await fetch(`/api/ai/predict/${studentId}`);
+            const data = await response.json();
+
+            if (!data.prediction) {
+                resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-info-circle"></i><p>${data.message}</p></div>`;
+                return;
+            }
+
+            let html = `<h3>Analysis Results</h3><div class="grid-2">`;
+            for (const [subject, pred] of Object.entries(data.prediction)) {
+                html += `
+                    <div class="prediction-card">
+                        <h4>${subject}</h4>
+                        <p>Current Average: <strong>${pred.current_average}</strong></p>
+                        <p>Predicted Next: <strong>${pred.predicted_marks}</strong></p>
+                        <p>Trend: <span class="badge badge-info">${pred.trend}</span></p>
+                        <p>Confidence: <span class="badge badge-warning">${pred.confidence}</span></p>
+                    </div>
+                `;
+            }
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        } catch (error) {
+            resultsDiv.innerHTML = `<div class="alert alert-error">Error generating prediction: ${error}</div>`;
+        }
+    }
+
+    // At Risk
+    async function findAtRiskStudents() {
+        const threshold = document.getElementById('risk-threshold').value;
+        const resultsDiv = document.getElementById('at-risk-results');
+
+        resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><br>Scanning student data...</div>';
+        resultsDiv.classList.add('active');
+
+        try {
+            const response = await fetch(`/api/ai/risk?threshold=${threshold}`);
+            const data = await response.json();
+
+            if (data.students.length === 0) {
+                resultsDiv.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>No students found at risk.</p></div>';
+                return;
+            }
+
+            let html = `<h3>Identified Students (${data.students.length})</h3><div class="grid-2">`;
+            data.students.forEach(student => {
+                html += `
+                    <div class="risk-card ${student.risk_level}">
+                        <h4>${student.name} (${student.student_id})</h4>
+                        <p>Class: ${student.class}</p>
+                        <p>Average: <strong>${student.average_marks}</strong></p>
+                        <p>Failing Subjects: <strong>${student.failing_subjects}</strong></p>
+                        <span class="badge badge-danger">Risk Level: ${student.risk_level.toUpperCase()}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        } catch (error) {
+            resultsDiv.innerHTML = `<div class="alert alert-error">Error finding at-risk students: ${error}</div>`;
+        }
+    }
+
+    // Recommendations
+    async function getRecommendations() {
+        const studentId = document.getElementById('recommend-student').value;
+        const resultsDiv = document.getElementById('recommendations-results');
+
+        if (!studentId) {
+            alert('Please select a student');
+            return;
+        }
+
+        resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><br>Generating personalized insights...</div>';
+        resultsDiv.classList.add('active');
+
+        try {
+            const response = await fetch(`/api/ai/recommendations/${studentId}`);
+            const data = await response.json();
+
+            if (data.recommendations.length === 0) {
+                resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-info-circle"></i><p>${data.message}</p></div>`;
+                return;
+            }
+
+            let html = `<h3>Personalized Plan</h3>`;
+            data.recommendations.forEach(rec => {
+                let borderClass = 'low';
+                if (rec.priority === 'critical') borderClass = 'high'; // Map to CSS classes
+                if (rec.priority === 'high') borderClass = 'medium';
+
+                html += `
+                    <div class="recommendation-card ${borderClass}">
+                        <h4>${rec.subject} <span class="badge badge-info">${rec.priority.toUpperCase()} Priority</span></h4>
+                        <p><strong>Advice:</strong> ${rec.advice}</p>
+                        <p><strong>Consistency:</strong> ${rec.consistency}</p>
+                        <div class="mt-10">
+                            <small>Improvement Potential: +${rec.improvement_potential}</small>
+                            <div class="percentile-bar">
+                                <div class="percentile-fill" style="width: ${rec.average}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            resultsDiv.innerHTML = html;
+        } catch (error) {
+            resultsDiv.innerHTML = `<div class="alert alert-error">Error generating recommendations: ${error}</div>`;
+        }
+    }
+
+    // Comparative
+    async function getComparativeInsights() {
+        const studentId = document.getElementById('compare-student').value;
+        const resultsDiv = document.getElementById('comparative-results');
+
+        if (!studentId) {
+            alert('Please select a student');
+            return;
+        }
+
+        resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><br>Comparing performance...</div>';
+        resultsDiv.classList.add('active');
+
+        try {
+            const response = await fetch(`/api/ai/compare/${studentId}`);
+            const data = await response.json();
+
+            if (data.message && !data.insights) {
+                resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-info-circle"></i><p>${data.message}</p></div>`;
+                return;
+            }
+
+            let html = `<h3>Comparison vs Class</h3><div class="grid-2">`;
+            data.insights.forEach(insight => {
+                html += `
+                    <div class="insight-card">
+                        <h4>${insight.subject}</h4>
+                        <p>Student Avg: <strong>${insight.student_average}</strong></p>
+                        <p>Class Avg: <strong>${insight.class_average}</strong></p>
+                        <p>Percentile: <strong>${insight.percentile}%</strong></p>
+                        <div class="percentile-bar">
+                             <div class="percentile-fill" style="width: ${insight.percentile}%"></div>
+                        </div>
+                        <span class="badge badge-primary">${insight.class_rank_estimate}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        } catch (error) {
+            resultsDiv.innerHTML = `<div class="alert alert-error">Error generating comparison: ${error}</div>`;
+        }
+    }
+
+    // Class Insights
+    async function getClassInsights() {
+        const className = document.getElementById('class-select').value;
+        const resultsDiv = document.getElementById('class-insights-results');
+
+        if (!className) {
+            alert('Please select a class');
+            return;
+        }
+
+        resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><br>Analyzing class performance...</div>';
+        resultsDiv.classList.add('active');
+
+        try {
+            // Encode class name for URL
+            const response = await fetch(`/api/ai/class/${encodeURIComponent(className)}`);
+            const data = await response.json();
+
+            if (data.message && !data.class_name) {
+                resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-info-circle"></i><p>${data.message}</p></div>`;
+                return;
+            }
+
+            let html = `
+                <div class="stat-box" style="margin-bottom: 20px;">
+                    <h4>${data.class_average}</h4>
+                    <p>Class Average</p>
+                </div>
+                <h3>Top Performers</h3>
+                <ul>
+                    ${data.top_performers.map(p => `<li>${p.name}: ${p.average}</li>`).join('')}
+                </ul>
+                <h3 style="margin-top: 20px">Distribution</h3>
+                <div class="grid-4">
+                    <div class="stat-box"><h4>${data.performance_distribution.excellent}</h4><p>Excellent</p></div>
+                    <div class="stat-box"><h4>${data.performance_distribution.good}</h4><p>Good</p></div>
+                    <div class="stat-box"><h4>${data.performance_distribution.average}</h4><p>Average</p></div>
+                    <div class="stat-box"><h4>${data.performance_distribution.poor}</h4><p>Poor</p></div>
+                </div>
+            `;
+            resultsDiv.innerHTML = html;
+        } catch (error) {
+            resultsDiv.innerHTML = `<div class="alert alert-error">Error analyzing class: ${error}</div>`;
+        }
+    }
+
+    // Anomalies
+    async function detectAnomalies() {
+        const resultsDiv = document.getElementById('anomalies-results');
+        resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><br>Scanning for anomalies...</div>';
+        resultsDiv.classList.add('active');
+
+        try {
+            const response = await fetch('/api/ai/anomalies');
+            const data = await response.json();
+
+            if (data.anomalies.length === 0) {
+                resultsDiv.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>No anomalies detected.</p></div>';
+                return;
+            }
+
+            let html = `<h3>Detected Anomalies (${data.anomalies.length})</h3>`;
+            data.anomalies.forEach(a => {
+                html += `
+                    <div class="risk-card medium">
+                        <h4>${a.type.replace('_', ' ').toUpperCase()}</h4>
+                         <p>Student: <strong>${a.student_name}</strong></p>
+                         ${a.subject ? `<p>Subject: ${a.subject}</p>` : ''}
+                         ${a.increase ? `<p>Increase: +${a.increase}</p>` : ''}
+                         ${a.note ? `<p>Note: ${a.note}</p>` : ''}
+                    </div>
+                `;
+            });
+            resultsDiv.innerHTML = html;
+        } catch (error) {
+            resultsDiv.innerHTML = `<div class="alert alert-error">Error detecting anomalies: ${error}</div>`;
+        }
+    }
+</script>
+{% endblock %}

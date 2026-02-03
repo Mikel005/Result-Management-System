@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Edit Department - Result Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-edit"></i> Edit Department</h1>
+    </div>
+
+    <div class="card">
+        <form method="POST" class="form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Department Name *</label>
+                    <input type="text" id="name" name="name" required value="{{ department.name }}"
+                        placeholder="e.g., Computer Science">
+                </div>
+                <div class="form-group">
+                    <label for="faculty_id">Faculty *</label>
+                    <select id="faculty_id" name="faculty_id" required>
+                        <option value="">Select Faculty</option>
+                        {% for faculty in faculties %}
+                        <option value="{{ faculty.id }}" {% if faculty.id==department.faculty_id %}selected{% endif %}>
+                            {{ faculty.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Department
+                </button>
+                <a href="{{ url_for('departments') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

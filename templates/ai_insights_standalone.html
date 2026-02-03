@@ -1,0 +1,1203 @@
+{% extends 'base.html' %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}<title>AI-Powered Insights - Result Management System</title>{% endblock %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #6b7280;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --light: #f9fafb;
+            --dark: #1f2937;
+            --border: #e5e7eb;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .page-header h1 i {
+            color: var(--primary);
+            margin-right: 15px;
+        }
+
+        .page-header p {
+            color: var(--secondary);
+            font-size: 18px;
+        }
+
+        .ai-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px var(--shadow);
+            margin-bottom: 30px;
+            border-left: 4px solid var(--primary);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-card h2 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+        }
+
+        .ai-card h2 i {
+            color: var(--primary);
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .ai-tool {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .ai-select,
+        .ai-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .ai-select:focus,
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .ai-results {
+            margin-top: 20px;
+            padding: 25px;
+            background: var(--light);
+            border-radius: 12px;
+            display: none;
+        }
+
+        .ai-results.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .ai-results h3 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-results h3 i {
+            color: var(--primary);
+        }
+
+        .prediction-card,
+        .risk-card,
+        .recommendation-card,
+        .insight-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .prediction-card {
+            border-left-color: #667eea;
+        }
+
+        .risk-card.high {
+            border-left-color: #ef4444;
+        }
+
+        .risk-card.medium {
+            border-left-color: #f59e0b;
+        }
+
+        .risk-card.low {
+            border-left-color: #10b981;
+        }
+
+        .recommendation-card.critical {
+            border-left-color: #ef4444;
+        }
+
+        .recommendation-card.high {
+            border-left-color: #f59e0b;
+        }
+
+        .recommendation-card.medium {
+            border-left-color: #3b82f6;
+        }
+
+
+        .recommendation-card.low {
+            border-left-color: #10b981;
+        }
+
+
+        .prediction-card h4,
+        .risk-card h4,
+        .recommendation-card h4,
+        .insight-card h4 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+
+        .prediction-card p,
+        .risk-card p,
+        .recommendation-card p,
+        .insight-card p {
+            margin-bottom: 8px;
+            color: var(--secondary);
+        }
+
+
+        .trend-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+
+        .trend-improving {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+
+        .trend-declining {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+
+        .trend-stable {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+
+
+        .trend-strongly-improving {
+            background: #10b981;
+            color: white;
+        }
+
+
+        .trend-strongly-declining {
+            background: #ef4444;
+            color: white;
+        }
+
+
+        .confidence-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+
+        .confidence-high {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+
+        .confidence-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+
+        .confidence-low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+
+        .badge-primary {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+
+        .percentile-bar {
+            width: 100%;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+
+        .percentile-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.8s ease;
+            border-radius: 6px;
+        }
+
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: var(--secondary);
+        }
+
+
+        .loading i {
+            font-size: 48px;
+            animation: spin 1s linear infinite;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: var(--secondary);
+        }
+
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+            color: var(--primary);
+        }
+
+
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+
+        .stat-box h4 {
+            font-size: 32px;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+
+        .stat-box p {
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+
+        .mt-10 {
+            margin-top: 10px;
+        }
+
+
+        .demo-note {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+
+        .demo-note i {
+            color: #f59e0b;
+            margin-right: 8px;
+        }
+
+
+        @media (max-width: 768px) {
+            .ai-tool {
+                flex-direction: column;
+            }
+
+
+            .form-group {
+                width: 100%;
+            }
+
+
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+
+            .page-header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+{% block content %}
+
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-brain"></i> AI-Powered Insights Dashboard</h1>
+            <p>Intelligent analytics and predictions powered by machine learning</p>
+        </div>
+
+
+        <div class="demo-note">
+            <i class="fas fa-info-circle"></i>
+            <strong>Demo Mode:</strong> This is a standalone demo. In the full system, data is loaded from the database
+            via API endpoints.
+        </div>
+
+
+        <!-- Student Performance Predictor -->
+        <div class="ai-card">
+            <h2><i class="fas fa-crystal-ball"></i> Performance Predictor</h2>
+            <p class="subtitle">Predict future performance based on historical data using Linear Regression</p>
+
+            <div class="ai-tool">
+                <div class="form-group">
+                    <label for="predict-student">Select Student</label>
+                    <select id="predict-student" class="ai-select">
+                        <option value="">Choose a student...</option>
+                        <option value="STU001">STU001 - John Doe</option>
+                        <option value="STU002">STU002 - Jane Smith</option>
+                        <option value="STU003">STU003 - Alice Johnson</option>
+                    </select>
+                </div>
+                <button onclick="predictPerformance()" class="btn btn-primary">
+                    <i class="fas fa-magic"></i> Generate Prediction
+                </button>
+            </div>
+
+            <div id="prediction-results" class="ai-results"></div>
+        </div>
+
+
+        <!-- At-Risk Students -->
+        <div class="ai-card">
+            <h2><i class="fas fa-exclamation-triangle"></i> At-Risk Student Detection</h2>
+            <p class="subtitle">Identify students who need additional support using statistical analysis</p>
+
+            <div class="ai-tool">
+                <div class="form-group">
+                    <label for="risk-threshold">Performance Threshold</label>
+                    <input type="number" id="risk-threshold" value="60" min="0" max="100" class="ai-input">
+                </div>
+                <button onclick="findAtRiskStudents()" class="btn btn-warning">
+                    <i class="fas fa-search"></i> Identify At-Risk Students
+                </button>
+            </div>
+
+            <div id="at-risk-results" class="ai-results"></div>
+        </div>
+
+
+        <!-- Personalized Recommendations -->
+        <div class="ai-card">
+            <h2><i class="fas fa-lightbulb"></i> Personalized Recommendations</h2>
+            <p class="subtitle">AI-generated improvement suggestions based on performance analysis</p>
+
+            <div class="ai-tool">
+                <div class="form-group">
+                    <label for="recommend-student">Select Student</label>
+                    <select id="recommend-student" class="ai-select">
+                        <option value="">Choose a student...</option>
+                        <option value="STU001">STU001 - John Doe</option>
+                        <option value="STU002">STU002 - Jane Smith</option>
+                        <option value="STU003">STU003 - Alice Johnson</option>
+                    </select>
+                </div>
+                <button onclick="getRecommendations()" class="btn btn-info">
+                    <i class="fas fa-robot"></i> Generate Recommendations
+                </button>
+            </div>
+
+            <div id="recommendations-results" class="ai-results"></div>
+        </div>
+
+
+        <!-- Comparative Analysis -->
+        <div class="ai-card">
+            <h2><i class="fas fa-balance-scale"></i> Comparative Analysis</h2>
+            <p class="subtitle">Compare student performance with class and overall averages</p>
+
+            <div class="ai-tool">
+                <div class="form-group">
+                    <label for="compare-student">Select Student</label>
+                    <select id="compare-student" class="ai-select">
+                        <option value="">Choose a student...</option>
+                        <option value="STU001">STU001 - John Doe</option>
+                        <option value="STU002">STU002 - Jane Smith</option>
+                        <option value="STU003">STU003 - Alice Johnson</option>
+                    </select>
+                </div>
+                <button onclick="getComparativeInsights()" class="btn btn-primary">
+                    <i class="fas fa-chart-line"></i> Compare Performance
+                </button>
+            </div>
+
+            <div id="comparative-results" class="ai-results"></div>
+        </div>
+
+
+        <!-- Class Insights -->
+        <div class="ai-card">
+            <h2><i class="fas fa-users-cog"></i> Class Intelligence</h2>
+            <p class="subtitle">AI-powered comprehensive insights for entire classes</p>
+
+            <div class="ai-tool">
+                <div class="form-group">
+                    <label for="class-select">Select Class</label>
+                    <select id="class-select" class="ai-select">
+                        <option value="">Choose a class...</option>
+                        <option value="Grade 10-A">Grade 10-A</option>
+                        <option value="Grade 10-B">Grade 10-B</option>
+                        <option value="Grade 11-A">Grade 11-A</option>
+                    </select>
+                </div>
+                <button onclick="getClassInsights()" class="btn btn-success">
+                    <i class="fas fa-brain"></i> Analyze Class
+                </button>
+            </div>
+
+            <div id="class-insights-results" class="ai-results"></div>
+        </div>
+
+
+        <!-- Anomaly Detection -->
+        <div class="ai-card">
+            <h2><i class="fas fa-shield-alt"></i> Anomaly Detection</h2>
+            <p class="subtitle">Detect unusual patterns using statistical thresholds and variance analysis</p>
+
+            <button onclick="detectAnomalies()" class="btn btn-danger">
+                <i class="fas fa-search-plus"></i> Scan for Anomalies
+            </button>
+
+            <div id="anomalies-results" class="ai-results"></div>
+        </div>
+    </div>
+
+
+    <script>
+        // Demo data simulating API responses
+        const demoData = {
+            predictions: {
+                STU001: {
+                    prediction: {
+                        'Mathematics': {
+                            predicted_marks: 87.5,
+                            current_average: 84.2,
+                            trend: 'improving',
+                            confidence: 'high'
+                        },
+                        'English': {
+                            predicted_marks: 79.3,
+                            current_average: 78.5,
+                            trend: 'stable',
+                            confidence: 'medium'
+                        },
+                        'Science': {
+                            predicted_marks: 72.8,
+                            current_average: 75.3,
+                            trend: 'declining',
+                            confidence: 'medium'
+                        }
+                    },
+                    overall_trend: 'improving',
+                    message: 'Predictions generated successfully'
+                },
+                STU002: {
+                    prediction: {
+                        'Mathematics': {
+                            predicted_marks: 92.1,
+                            current_average: 88.7,
+                            trend: 'improving',
+                            confidence: 'high'
+                        },
+                        'English': {
+                            predicted_marks: 85.4,
+                            current_average: 83.2,
+                            trend: 'stable',
+                            confidence: 'high'
+                        }
+                    },
+                    overall_trend: 'strongly_improving',
+                    message: 'Predictions generated successfully'
+                }
+            },
+            atRisk: {
+                students: [
+                    {
+                        student_id: 'STU003',
+                        name: 'Alice Johnson',
+                        class: 'Grade 10-A',
+                        average_marks: 52.3,
+                        total_results: 5,
+                        failing_subjects: 2,
+                        risk_level: 'high'
+                    },
+                    {
+                        student_id: 'STU004',
+                        name: 'Bob Wilson',
+                        class: 'Grade 10-B',
+                        average_marks: 58.7,
+                        total_results: 5,
+                        failing_subjects: 1,
+                        risk_level: 'medium'
+                    }
+                ]
+            },
+            recommendations: {
+                STU001: {
+                    recommendations: [
+                        {
+                            subject: 'Science',
+                            average: 75.3,
+                            priority: 'medium',
+                            advice: 'Good progress in Science. Work on advanced topics for better grades.',
+                            consistency: 'Performance varies moderately. Focus on maintaining consistency.',
+                            best_score: 82.5,
+                            improvement_potential: 24.7
+                        },
+                        {
+                            subject: 'English',
+                            average: 78.5,
+                            priority: 'low',
+                            advice: 'Excellent performance in English. Maintain consistency and challenge yourself.',
+                            consistency: 'Performance is consistent. Keep up the good work!',
+                            best_score: 85.0,
+                            improvement_potential: 21.5
+                        }
+                    ],
+                    overall_average: 79.3,
+                    message: 'Recommendations generated successfully'
+                },
+                STU003: {
+                    recommendations: [
+                        {
+                            subject: 'Mathematics',
+                            average: 48.2,
+                            priority: 'critical',
+                            advice: 'Requires immediate attention in Mathematics. Consider extra tutoring and practice.',
+                            consistency: 'Performance varies significantly (range: 35.2). Work on maintaining consistency.',
+                            best_score: 62.0,
+                            improvement_potential: 51.8
+                        },
+                        {
+                            subject: 'English',
+                            average: 56.4,
+                            priority: 'high',
+                            advice: 'Focus on improving English fundamentals. Regular practice recommended.',
+                            consistency: 'Performance is inconsistent. Establish a regular study routine.',
+                            best_score: 68.5,
+                            improvement_potential: 43.6
+                        }
+                    ],
+                    overall_average: 52.3,
+                    message: 'Recommendations generated successfully'
+                }
+            },
+            comparative: {
+                STU001: {
+                    insights: [
+                        {
+                            subject: 'Mathematics',
+                            student_average: 84.2,
+                            class_average: 76.5,
+                            overall_average: 74.8,
+                            difference_from_class: 7.7,
+                            percentile: 78.5,
+                            standing: 'above_average',
+                            class_rank_estimate: 'Top 25%'
+                        },
+                        {
+                            subject: 'English',
+                            student_average: 78.5,
+                            class_average: 72.3,
+                            overall_average: 71.2,
+                            difference_from_class: 6.2,
+                            percentile: 72.3,
+                            standing: 'above_average',
+                            class_rank_estimate: 'Top 25%'
+                        },
+                        {
+                            subject: 'Science',
+                            student_average: 75.3,
+                            class_average: 68.7,
+                            overall_average: 69.4,
+                            difference_from_class: 6.6,
+                            percentile: 70.1,
+                            standing: 'above_average',
+                            class_rank_estimate: 'Top 25%'
+                        }
+                    ],
+                    student_class: 'Grade 10-A',
+                    message: 'Comparative analysis completed'
+                }
+            },
+            classInsights: {
+                'Grade 10-A': {
+                    class_name: 'Grade 10-A',
+                    total_students: 25,
+                    class_average: 73.5,
+                    top_performers: [
+                        { name: 'John Doe', average: 84.2 },
+                        { name: 'Mary Jones', average: 82.7 },
+                        { name: 'David Lee', average: 81.3 }
+                    ],
+                    students_needing_attention: [
+                        { name: 'Alice Johnson', average: 52.3, failing: 2 },
+                        { name: 'Tom Brown', average: 58.1, failing: 1 }
+                    ],
+                    performance_distribution: {
+                        excellent: 5,
+                        good: 12,
+                        average: 6,
+                        poor: 2
+                    },
+                    pass_rate: 92.0,
+                    message: 'Class insights generated successfully'
+                }
+            },
+            anomalies: {
+                anomalies: [
+                    {
+                        type: 'sudden_improvement',
+                        student_id: 'STU005',
+                        student_name: 'Charlie Davis',
+                        subject: 'Mathematics',
+                        previous_marks: 45.2,
+                        current_marks: 92.5,
+                        increase: 47.3,
+                        severity: 'high',
+                        date: '2024-12-15'
+                    },
+                    {
+                        type: 'multiple_perfect_scores',
+                        student_id: 'STU002',
+                        student_name: 'Jane Smith',
+                        count: 4,
+                        severity: 'low',
+                        note: 'Exceptional performance - verify if genuine'
+                    }
+                ]
+            }
+        };
+
+
+        function predictPerformance() {
+            const studentId = document.getElementById('predict-student').value;
+            if (!studentId) {
+                alert('Please select a student');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('prediction-results');
+            resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Generating predictions using Linear Regression...</p></div>';
+            resultsDiv.classList.add('active');
+
+            // Simulate API call
+            setTimeout(() => {
+                const data = demoData.predictions[studentId] || { prediction: null, message: 'Not enough data for prediction (minimum 2 results needed)' };
+
+                if (!data.prediction) {
+                    resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-info-circle"></i><p>${data.message}</p></div>`;
+                    return;
+                }
+
+                let html = `<h3><i class="fas fa-chart-line"></i> Performance Predictions</h3>`;
+                html += `<p><strong>Overall Trend:</strong> <span class="trend-indicator trend-${data.overall_trend.replace('_', '-')}">${data.overall_trend.replace('_', ' ').toUpperCase()}</span></p>`;
+                html += '<div class="grid-2">';
+
+                for (const [subject, pred] of Object.entries(data.prediction)) {
+                    html += `
+                        <div class="prediction-card">
+                            <h4>${subject}</h4>
+                            <p><strong>Predicted Next Score:</strong> ${pred.predicted_marks} / 100</p>
+                            <p><strong>Current Average:</strong> ${pred.current_average}</p>
+                            <p><strong>Trend:</strong> <span class="trend-indicator trend-${pred.trend}">${pred.trend.toUpperCase()}</span></p>
+                            <p><strong>Confidence:</strong> <span class="confidence-badge confidence-${pred.confidence}">${pred.confidence.toUpperCase()}</span></p>
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
+                resultsDiv.innerHTML = html;
+            }, 1000);
+        }
+
+
+        function findAtRiskStudents() {
+            const resultsDiv = document.getElementById('at-risk-results');
+            resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Analyzing student performance using statistical methods...</p></div>';
+            resultsDiv.classList.add('active');
+
+            setTimeout(() => {
+                const data = demoData.atRisk;
+
+                if (data.students.length === 0) {
+                    resultsDiv.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>No at-risk students identified! 🎉</p></div>';
+                    return;
+                }
+
+                let html = `<h3><i class="fas fa-user-shield"></i> ${data.students.length} Students Need Attention</h3>`;
+
+                data.students.forEach(student => {
+                    html += `
+                        <div class="risk-card ${student.risk_level}">
+                            <h4>${student.name} (${student.student_id}) - ${student.class}</h4>
+                            <p><strong>Average:</strong> ${student.average_marks} / 100</p>
+                            <p><strong>Failing Subjects:</strong> ${student.failing_subjects}</p>
+                            <p><strong>Risk Level:</strong> <span class="badge badge-${student.risk_level === 'high' ? 'danger' : student.risk_level === 'medium' ? 'warning' : 'info'}">${student.risk_level.toUpperCase()}</span></p>
+                        </div>
+                    `;
+                });
+
+                resultsDiv.innerHTML = html;
+            }, 1200);
+        }
+
+
+        function getRecommendations() {
+            const studentId = document.getElementById('recommend-student').value;
+            if (!studentId) {
+                alert('Please select a student');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('recommendations-results');
+            resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Generating personalized recommendations...</p></div>';
+            resultsDiv.classList.add('active');
+
+            setTimeout(() => {
+                const data = demoData.recommendations[studentId] || { recommendations: [], message: 'No results found for this student' };
+
+                if (data.recommendations.length === 0) {
+                    resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-info-circle"></i><p>${data.message}</p></div>`;
+                    return;
+                }
+
+                let html = `<h3><i class="fas fa-graduation-cap"></i> Personalized Recommendations</h3>`;
+                html += `<p><strong>Overall Average:</strong> ${data.overall_average} / 100</p>`;
+
+                data.recommendations.forEach(rec => {
+                    html += `
+                        <div class="recommendation-card ${rec.priority}">
+                            <h4>${rec.subject} <span class="badge badge-${rec.priority === 'critical' ? 'danger' : rec.priority === 'high' ? 'warning' : rec.priority === 'medium' ? 'info' : 'success'}">${rec.priority.toUpperCase()} PRIORITY</span></h4>
+                            <p><strong>Current Average:</strong> ${rec.average} / 100</p>
+                            <p><strong>Best Score:</strong> ${rec.best_score}</p>
+                            <p><strong>Improvement Potential:</strong> ${rec.improvement_potential} points</p>
+                            <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border);"><i class="fas fa-lightbulb"></i> <strong>Advice:</strong> ${rec.advice}</p>
+                            <p><i class="fas fa-chart-line"></i> <strong>Consistency:</strong> ${rec.consistency}</p>
+                        </div>
+                    `;
+                });
+
+                resultsDiv.innerHTML = html;
+            }, 1100);
+        }
+
+
+        function getComparativeInsights() {
+            const studentId = document.getElementById('compare-student').value;
+            if (!studentId) {
+                alert('Please select a student');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('comparative-results');
+            resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Analyzing comparative performance...</p></div>';
+            resultsDiv.classList.add('active');
+
+            setTimeout(() => {
+                const data = demoData.comparative[studentId] || { insights: [], message: 'Student not found' };
+
+                if (!data.insights || data.insights.length === 0) {
+                    resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-info-circle"></i><p>${data.message}</p></div>`;
+                    return;
+                }
+
+                let html = `<h3><i class="fas fa-award"></i> Performance Comparison (Class: ${data.student_class})</h3>`;
+
+                data.insights.forEach(insight => {
+                    const standingColor = {
+                        'excellent': 'success',
+                        'above_average': 'primary',
+                        'average': 'info',
+                        'below_average': 'warning'
+                    }[insight.standing];
+
+                    html += `
+                        <div class="insight-card">
+                            <h4>${insight.subject} <span class="badge badge-${standingColor}">${insight.standing.replace('_', ' ').toUpperCase()}</span></h4>
+                            <p><strong>Your Average:</strong> ${insight.student_average} / 100</p>
+                            <p><strong>Class Average:</strong> ${insight.class_average} / 100</p>
+                            <p><strong>Overall Average:</strong> ${insight.overall_average} / 100</p>
+                            <p><strong>Difference:</strong> ${insight.difference_from_class > 0 ? '+' : ''}${insight.difference_from_class} points</p>
+                            <p><strong>Estimated Class Rank:</strong> ${insight.class_rank_estimate}</p>
+                            <div class="percentile-bar">
+                                <div class="percentile-fill" style="width: ${insight.percentile}%"></div>
+                            </div>
+                            <p style="color: var(--secondary); font-size: 12px;">${insight.percentile}th percentile</p>
+                        </div>
+                    `;
+                });
+
+                resultsDiv.innerHTML = html;
+            }, 1000);
+        }
+
+
+        function getClassInsights() {
+            const className = document.getElementById('class-select').value;
+            if (!className) {
+                alert('Please select a class');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('class-insights-results');
+            resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Analyzing class performance...</p></div>';
+            resultsDiv.classList.add('active');
+
+            setTimeout(() => {
+                const data = demoData.classInsights[className] || { message: 'No data found for this class' };
+
+                if (data.message && data.message.includes('No data')) {
+                    resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-info-circle"></i><p>${data.message}</p></div>`;
+                    return;
+                }
+
+                let html = `
+                    <h3><i class="fas fa-school"></i> ${data.class_name} - Class Intelligence Report</h3>
+                    <div class="grid-3" style="margin: 20px 0;">
+                        <div class="stat-box">
+                            <h4>${data.total_students}</h4>
+                            <p>Total Students</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4>${data.class_average}</h4>
+                            <p>Class Average</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4>${data.pass_rate}%</h4>
+                            <p>Pass Rate</p>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-top: 25px; margin-bottom: 15px;"><i class="fas fa-trophy"></i> Top Performers</h4>
+                `;
+
+                data.top_performers.forEach((student, index) => {
+                    html += `<p>🏆 ${index + 1}. ${student.name} - ${student.average} avg</p>`;
+                });
+
+                if (data.students_needing_attention.length > 0) {
+                    html += `<h4 style="margin-top: 25px; margin-bottom: 15px;"><i class="fas fa-hand-holding-heart"></i> Students Needing Support</h4>`;
+                    data.students_needing_attention.forEach(student => {
+                        html += `<p>⚠️ ${student.name} - ${student.average} avg (${student.failing} failing)</p>`;
+                    });
+                }
+
+                html += `
+                    <h4 style="margin-top: 25px; margin-bottom: 15px;"><i class="fas fa-chart-pie"></i> Performance Distribution</h4>
+                    <div class="grid-4" style="margin-top: 15px;">
+                        <div style="text-align: center; padding: 20px; background: #d1fae5; border-radius: 10px;">
+                            <h3 style="color: #065f46; margin: 0;">${data.performance_distribution.excellent}</h3>
+                            <p style="color: #065f46; font-size: 14px; margin: 5px 0 0 0;">Excellent (85+)</p>
+                        </div>
+                        <div style="text-align: center; padding: 20px; background: #dbeafe; border-radius: 10px;">
+                            <h3 style="color: #1e40af; margin: 0;">${data.performance_distribution.good}</h3>
+                            <p style="color: #1e40af; font-size: 14px; margin: 5px 0 0 0;">Good (70-84)</p>
+                        </div>
+                        <div style="text-align: center; padding: 20px; background: #fef3c7; border-radius: 10px;">
+                            <h3 style="color: #92400e; margin: 0;">${data.performance_distribution.average}</h3>
+                            <p style="color: #92400e; font-size: 14px; margin: 5px 0 0 0;">Average (50-69)</p>
+                        </div>
+                        <div style="text-align: center; padding: 20px; background: #fee2e2; border-radius: 10px;">
+                            <h3 style="color: #991b1b; margin: 0;">${data.performance_distribution.poor}</h3>
+                            <p style="color: #991b1b; font-size: 14px; margin: 5px 0 0 0;">Needs Help (<50)</p>
+                        </div>
+                    </div>
+                `;
+
+                resultsDiv.innerHTML = html;
+            }, 1300);
+        }
+
+
+        function detectAnomalies() {
+            const resultsDiv = document.getElementById('anomalies-results');
+            resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Scanning for anomalies using pattern detection...</p></div>';
+            resultsDiv.classList.add('active');
+
+            setTimeout(() => {
+                const data = demoData.anomalies;
+
+                if (data.anomalies.length === 0) {
+                    resultsDiv.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>No anomalies detected! All results appear normal.</p></div>';
+                    return;
+                }
+
+                let html = `<h3><i class="fas fa-exclamation-triangle"></i> ${data.anomalies.length} Anomalies Detected</h3>`;
+
+                data.anomalies.forEach(anomaly => {
+                    if (anomaly.type === 'sudden_improvement') {
+                        html += `
+                            <div class="risk-card ${anomaly.severity}">
+                                <h4>🚨 Sudden Performance Jump</h4>
+                                <p><strong>Student:</strong> ${anomaly.student_name} (${anomaly.student_id})</p>
+                                <p><strong>Subject:</strong> ${anomaly.subject}</p>
+                                <p><strong>Previous Score:</strong> ${anomaly.previous_marks}</p>
+                                <p><strong>Current Score:</strong> ${anomaly.current_marks}</p>
+                                <p><strong>Increase:</strong> +${anomaly.increase} points</p>
+                                <p><strong>Severity:</strong> <span class="badge badge-${anomaly.severity === 'high' ? 'danger' : 'warning'}">${anomaly.severity.toUpperCase()}</span></p>
+                                <p style="font-size: 12px; color: var(--secondary); margin-top: 10px;">Date: ${anomaly.date}</p>
+                            </div>
+                        `;
+                    } else if (anomaly.type === 'multiple_perfect_scores') {
+                        html += `
+                            <div class="risk-card low">
+                                <h4>⭐ Multiple Perfect Scores</h4>
+                                <p><strong>Student:</strong> ${anomaly.student_name} (${anomaly.student_id})</p>
+                                <p><strong>Perfect Scores:</strong> ${anomaly.count}</p>
+                                <p style="color: var(--info);">${anomaly.note}</p>
+                            </div>
+                        `;
+                    }
+                });
+
+                resultsDiv.innerHTML = html;
+            }, 1400);
+        }
+    </script>
+</body>
+{% endblock %}

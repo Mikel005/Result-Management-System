@@ -1,0 +1,11 @@
+--- STATUS COUNTS ---
+approved: 7
+
+--- RECENT RESULTS ---
+Student: ani michael (STU006), Sub: ENG101, Marks: 90.0, Status: approved
+Student: ani ebubechi (STU005 ), Sub: ENG101, Marks: 70.0, Status: approved
+Student: ibekwe hasel (STU004), Sub: HIST101, Marks: 72.0, Status: approved
+Student: ibekwe hasel (STU004), Sub: CSC 403, Marks: 65.0, Status: approved
+Student: ibekwe hasel (STU004), Sub: CS101, Marks: 90.0, Status: approved
+Student: ibekwe hasel (STU004), Sub: CS101, Marks: 80.0, Status: approved
+Student: Ikenna Nnamdi Christian (STU007), Sub: CSC 403, Marks: 70.0, Status: approved

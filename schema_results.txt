@@ -1,0 +1,32 @@
+--- Starting database check ---
+Found results.db, size: 106496 bytes
+
+--- SUBJECTS TABLE ---
+id (INTEGER)
+subject_code (TEXT)
+subject_name (TEXT)
+total_marks (INTEGER)
+class_id (INTEGER)
+department_id (INTEGER)
+unit (INTEGER)
+course_type (TEXT)
+level (TEXT)
+
+--- RESULTS TABLE ---
+id (INTEGER)
+student_id (TEXT)
+subject_code (TEXT)
+marks (REAL)
+grade (TEXT)
+status (TEXT)
+semester (TEXT)
+academic_year (TEXT)
+created_by (TEXT)
+approved_by (TEXT)
+created_at (TIMESTAMP)
+approved_at (TIMESTAMP)
+assignment (REAL)
+test1 (REAL)
+test2 (REAL)
+exam (REAL)
+--- Script finished ---

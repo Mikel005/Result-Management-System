@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% block title %}Registration Confirmation{% endblock %}
+
+{% block content %}
+<div class="container" style="padding:24px 0;">
+
+    <div class="print-actions">
+        <h2>Registration Confirmation</h2>
+        <button onclick="window.print()" class="btn btn-primary"><i class="fas fa-print"></i> Print Slip</button>
+    </div>
+
+    <!-- Printable Slip Area -->
+    <div class="registration-slip">
+        <div class="slip-header">
+            <h3>SCHOOL NAME HERE</h3>
+            <p>Course Registration Slip</p>
+        </div>
+
+        <div class="student-info">
+            <div class="info-row">
+                <span class="label">Student Name:</span>
+                <span class="value">{{ student.name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Student ID:</span>
+                <span class="value">{{ student.student_id }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Class:</span>
+                <span class="value">{{ student.class }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Department:</span>
+                <span class="value">{{ student.department_name if student.department_name else 'N/A' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Date:</span>
+                <span class="value">{{ current_date }}</span> <!-- You might need to pass current_date or use JS -->
+                <script>document.write(new Date().toLocaleDateString());</script>
+            </div>
+        </div>
+
+        {% if offerings and offerings|length > 0 %}
+        <table class="table table-bordered slip-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Course Title</th>
+                    <th>Unit</th>
+                    <th>Semester</th>
+                    <th>Session</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in offerings %}
+                <tr>
+                    <td>{{ o.subject_code }}</td>
+                    <td>{{ o.subject_name }}</td>
+                    <td>{{ o.unit if o.unit else '-' }}</td>
+                    <td>{{ o.semester }}</td>
+                    <td>{{ o.academic_year }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="signature-section">
+            <div class="signature-box">
+                <p>Student Signature</p>
+            </div>
+            <div class="signature-box">
+                <p>Course Adviser Signature</p>
+            </div>
+        </div>
+        {% else %}
+        <p>No recent registrations found.</p>
+        {% endif %}
+    </div>
+
+    <div class="print-actions" style="margin-top: 20px;">
+        <a href="{{ url_for('student_course_register') }}" class="btn btn-secondary">Back to Registration</a>
+        <a href="{{ url_for('student_dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+    </div>
+</div>
+
+<style>
+    .registration-slip {
+        background: white;
+        padding: 40px;
+        border: 1px solid #ddd;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .slip-header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #333;
+        padding-bottom: 10px;
+    }
+
+    .slip-header h3 {
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .student-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .info-row {
+        margin-bottom: 5px;
+    }
+
+    .info-row .label {
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .slip-table th {
+        background-color: #f8f9fa !important;
+        border-bottom: 2px solid #dee2e6 !important;
+    }
+
+    .signature-section {
+        margin-top: 50px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .signature-box {
+        border-top: 1px solid #333;
+        width: 40%;
+        text-align: center;
+        padding-top: 10px;
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .registration-slip,
+        .registration-slip * {
+            visibility: visible;
+        }
+
+        .registration-slip {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            border: none;
+            padding: 0;
+        }
+
+        .print-actions {
+            display: none !important;
+        }
+
+        /* Hide navbar/sidebar if they exist in base layout */
+        nav,
+        .sidebar,
+        footer {
+            display: none !important;
+        }
+    }
+</style>
+{% endblock %}

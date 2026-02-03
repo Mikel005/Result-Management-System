@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Add Class - Result Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-plus-circle"></i> Add New Class</h1>
+    </div>
+
+    <div class="card">
+        <form method="POST" class="form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="class_name">Class Name *</label>
+                <input type="text" id="class_name" name="class_name" required placeholder="e.g., Grade 10-A">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Add Class
+                </button>
+                <a href="{{ url_for('classes') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

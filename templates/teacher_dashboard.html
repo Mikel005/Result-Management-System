@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="page-header">
+        <div>
+            <h1><i class="fas fa-chalkboard-teacher"></i> Teacher Dashboard</h1>
+            <p>Welcome back, {{ session.username }}. Manage your courses and student performance.</p>
+        </div>
+        <div class="header-actions">
+            <span class="badge badge-primary" style="padding: 10px 20px; font-size: 1rem;">
+                <i class="fas fa-calendar-alt"></i> Academic Session: 2024/2025
+            </span>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--primary);">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ courses|length }}</h3>
+                <p>Assigned Courses</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--success);">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Active</h3>
+                <p>Teaching Status</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3><i class="fas fa-list-ul"></i> My Assigned Courses</h3>
+        </div>
+
+        {% if courses %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Subject Name</th>
+                        <th>Subject Code</th>
+                        <th>Semester</th>
+                        <th>Academic Year</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in courses %}
+                    <tr>
+                        <td><strong>{{ c.subject_name }}</strong></td>
+                        <td><span class="badge badge-info">{{ c.subject_code }}</span></td>
+                        <td>{{ c.semester|capitalize }}</td>
+                        <td>{{ c.academic_year }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('grade_course', offering_id=c.id) }}" class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Grade Students
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            You haven't been assigned any courses for the current session. Please contact the administrator for course
+            allocation.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px var(--shadow);
+    }
+
+    .page-header h1 {
+        font-size: 28px;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .page-header p {
+        color: var(--secondary);
+        margin: 5px 0 0 0;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .data-table th {
+        background: #f8fafc;
+        color: var(--secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .data-table td {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .data-table tbody tr:hover {
+        background-color: #f1f5f9;
+        transition: background-color 0.2s;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+</style>
+{% endblock %}

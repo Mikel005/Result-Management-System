@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}Results - Result Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-chart-bar"></i> Results</h1>
+        {% if session.role in ['admin', 'teacher'] %}
+        <a href="{{ url_for('add_result') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Result
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <form method="GET" class="filter-form">
+            <div class="filter-grid">
+                <div class="form-group">
+                    <input type="text" name="search" placeholder="Search by student name or ID" value="{{ search }}">
+                </div>
+                <div class="form-group">
+                    <select name="status">
+                        <option value="">All Status</option>
+                        <option value="pending" {% if status_filter=='pending' %}selected{% endif %}>Pending</option>
+                        <option value="approved" {% if status_filter=='approved' %}selected{% endif %}>Approved</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select name="class">
+                        <option value="">All Classes</option>
+                        {% for cls in classes %}
+                        <option value="{{ cls.class }}" {% if class_filter==cls.class %}selected{% endif %}>{{ cls.class
+                            }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select name="academic_year">
+                        <option value="">All Sessions</option>
+                        {% for year in range(2026, 1999, -1) %}
+                        {% set session = year ~ "/" ~ (year + 1) %}
+                        <option value="{{ session }}" {% if year_filter==session %}selected{% endif %}>{{ session }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select name="semester">
+                        <option value="">All Semesters</option>
+                        {% for sem in semesters %}
+                        <option value="{{ sem }}" {% if semester_filter==sem %}selected{% endif %}>{{ sem | capitalize
+                            }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Student Name</th>
+                        <th>Class</th>
+                        <th>Subject</th>
+                        <th>Marks</th>
+                        <th>Grade</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td><strong>{{ result.student_id }}</strong></td>
+                        <td>{{ result.student_name }}</td>
+                        <td><span class="badge badge-info">{{ result.class }}</span></td>
+                        <td>{{ result.subject_name }}</td>
+                        <td><strong>{{ result.marks }}</strong></td>
+                        <td>
+                            <span class="grade-badge grade-{{ result.grade.replace('+', 'plus') }}">
+                                {{ result.grade }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if result.status == 'pending' %}
+                            <span class="badge badge-warning">Pending</span>
+                            {% else %}
+                            <span class="badge badge-success">Approved</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if session.role in ['admin', 'teacher'] %}
+                            <a href="{{ url_for('send_result', result_id=result.id) }}" class="btn-icon btn-primary"
+                                title="Send Email">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                            {% endif %}
+
+                            {% if session.role == 'admin' %}
+                            {% if result.status == 'pending' %}
+                            <a href="{{ url_for('approve_result', result_id=result.id) }}" class="btn-icon btn-success"
+                                title="Approve">
+                                <i class="fas fa-check"></i>
+                            </a>
+                            {% endif %}
+                            <a href="{{ url_for('amend_result', result_id=result.id) }}" class="btn-icon btn-warning"
+                                title="Amend">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ url_for('delete_result', result_id=result.id) }}" class="btn-icon btn-danger"
+                                title="Delete" onclick="return confirm('Are you sure you want to delete this result?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No results found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

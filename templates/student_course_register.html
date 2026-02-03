@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Course Registration{% endblock %}
+
+{% block content %}
+<div class="container" style="padding:24px 0;">
+    <h2>Register For Courses</h2>
+    <form method="GET" style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
+        <select name="session">
+            <option value="">All Sessions</option>
+            {% for s in sessions %}
+            <option value="{{ s }}" {% if selected_session==s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+        </select>
+        <select name="semester">
+            <option value="">All Semesters</option>
+            {% for sem in semesters %}
+            <option value="{{ sem }}" {% if selected_semester==sem %}selected{% endif %}>{{ sem }}</option>
+            {% endfor %}
+        </select>
+        <select name="class">
+            <option value="">All Classes</option>
+            {% for c in classes %}
+            <option value="{{ c.id }}" {% if selected_class|int==c.id %}selected{% endif %}>{{ c.class_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary" style="padding: 5px 15px;">Filter</button>
+    </form>
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="select-all" onclick="toggleSelectAll()"></th>
+                    <th>Course Title</th>
+                    <th>Code</th>
+                    <th>Semester</th>
+                    <th>Session</th>
+                    <!-- <th>Seats</th> -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in offerings %}
+                <tr>
+                    <td>
+                        {% if o.id in regs %}
+                        <input type="checkbox" name="offering" value="{{ o.id }}" checked disabled>
+                        <span class="badge badge-success" style="font-size: 0.7em;">Registered</span>
+                        {% else %}
+                        <input type="checkbox" name="offering" value="{{ o.id }}">
+                        {% endif %}
+                    </td>
+                    <td>{{ o.subject_name }}</td>
+                    <td>{{ o.subject_code }}</td>
+                    <td>{{ o.semester }}</td>
+                    <td>{{ o.academic_year }}</td>
+                    <!-- <td>
+                        {% if o.remaining_seats is none %}
+                        Unlimited
+                        {% else %}
+                        {{ o.remaining_seats }} left
+                        {% endif %}
+                    </td> -->
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">No course offerings available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">Back</a>
+            <button class="btn btn-primary">Register Selected</button>
+        </div>
+    </form>
+
+    <script>
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('select-all');
+            const checkboxes = document.getElementsByName('offering');
+
+            for (let i = 0; i < checkboxes.length; i++) {
+                if (!checkboxes[i].disabled) {
+                    checkboxes[i].checked = selectAll.checked;
+                }
+            }
+        }
+    </script>
+</div>
+{% endblock %}

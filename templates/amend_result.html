@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Amend Result - Result Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-edit"></i> Amend Result</h1>
+    </div>
+
+    <div class="card">
+        <h3>Current Result</h3>
+        <div class="result-info">
+            <p><strong>Student:</strong> {{ result.student_name }} ({{ result.student_id }})</p>
+            <p><strong>Subject:</strong> {{ result.subject_name }}</p>
+            <p><strong>Current Marks:</strong> {{ result.marks }}</p>
+            <p><strong>Current Grade:</strong> <span
+                    class="grade-badge grade-{{ result.grade.replace('+', 'plus') }}">{{ result.grade }}</span></p>
+        </div>
+
+        <form method="POST" class="form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="marks">New Marks *</label>
+                <input type="number" id="marks" name="marks" required min="0" max="100" step="0.01"
+                    value="{{ result.marks }}">
+            </div>
+            <div class="form-group">
+                <label for="reason">Reason for Amendment *</label>
+                <textarea id="reason" name="reason" required rows="4"
+                    placeholder="Please provide a detailed reason for this amendment"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-save"></i> Save Amendment
+                </button>
+                <a href="{{ url_for('results') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    {% if amendments %}
+    <div class="card">
+        <h3><i class="fas fa-history"></i> Amendment History</h3>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Old Marks</th>
+                        <th>New Marks</th>
+                        <th>Old Grade</th>
+                        <th>New Grade</th>
+                        <th>Reason</th>
+                        <th>Amended By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for amendment in amendments %}
+                    <tr>
+                        <td>{{ amendment.amended_at }}</td>
+                        <td>{{ amendment.old_marks }}</td>
+                        <td>{{ amendment.new_marks }}</td>
+                        <td><span class="grade-badge grade-{{ amendment.old_grade.replace('+', 'plus') }}">{{
+                                amendment.old_grade }}</span></td>
+                        <td><span class="grade-badge grade-{{ amendment.new_grade.replace('+', 'plus') }}">{{
+                                amendment.new_grade }}</span></td>
+                        <td>{{ amendment.reason }}</td>
+                        <td>{{ amendment.amended_by }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

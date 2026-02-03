@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+{% block title %}Grade Course: {{ subject.subject_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .grading-container {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        overflow: hidden;
+    }
+
+    .grading-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 16px 16px 0 0;
+        margin-bottom: -1px;
+    }
+
+    .course-meta {
+        background: #f8fafc;
+        padding: 20px 30px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .meta-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--secondary);
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .meta-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .table-container {
+        padding: 20px;
+    }
+
+    .grading-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+
+    .grading-table th {
+        background: transparent;
+        color: var(--secondary);
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        padding: 12px 20px;
+        border: none;
+    }
+
+    .grading-table tr {
+        transition: all 0.2s;
+    }
+
+    .grading-table tbody tr {
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .grading-table tbody tr:hover {
+        transform: scale(1.005);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        z-index: 10;
+    }
+
+    .grading-table td {
+        padding: 15px 20px;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .grading-table td:first-child {
+        border-left: 1px solid var(--border);
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
+
+    .grading-table td:last-child {
+        border-right: 1px solid var(--border);
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+
+    .score-input {
+        border: 2px solid transparent;
+        background: #f1f5f9;
+        border-radius: 8px;
+        padding: 10px;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .score-input:focus {
+        background: white;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .total-input {
+        background: #e2e8f0;
+        border: none;
+        font-weight: 800;
+        color: var(--primary-dark);
+        font-size: 1.1em;
+    }
+
+    .student-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .student-name {
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .student-id {
+        font-size: 12px;
+        color: var(--secondary);
+    }
+
+    .save-section {
+        padding: 30px;
+        background: #f8fafc;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .btn-save {
+        padding: 14px 40px;
+        font-size: 16px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content grading-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3"><i class="fas fa-edit me-2 text-primary"></i> Assessment Entry</h1>
+        <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Dashboard
+        </a>
+    </div>
+
+    <div class="glass-card mb-5">
+        <div class="grading-header">
+            <h2 class="h4 mb-1">{{ subject.subject_name }}</h2>
+            <p class="mb-0 opacity-75">Grade management and assessment tracking</p>
+        </div>
+        <div class="course-meta">
+            <div class="meta-item">
+                <span class="meta-label">Course Code</span>
+                <span class="meta-value">{{ offering.subject_code }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Academic Year</span>
+                <span class="meta-value">{{ offering.academic_year }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Semester</span>
+                <span class="meta-value">{{ offering.semester }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Enrolled</span>
+                <span class="meta-value">{{ students|length }} Students</span>
+            </div>
+        </div>
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="grading-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th class="text-center">Assign (20)</th>
+                                <th class="text-center">Test 1 (20)</th>
+                                <th class="text-center">Test 2 (20)</th>
+                                <th class="text-center">Exam (40)</th>
+                                <th class="text-center">Total (100)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in students %}
+                            <tr>
+                                <td>
+                                    <div class="student-info">
+                                        <span class="student-name">{{ s.name }}</span>
+                                        <span class="student-id">{{ s.student_id }}</span>
+                                    </div>
+                                    <input type="hidden" name="student_id[]" value="{{ s.student_id }}">
+                                </td>
+                                <td>
+                                    <input type="number" step="0.5" min="0" max="20" class="form-control score-input"
+                                        name="assignment_{{ s.student_id }}" value="{{ s.assignment or 0 }}"
+                                        onchange="calculateTotal('{{ s.student_id }}')">
+                                </td>
+                                <td>
+                                    <input type="number" step="0.5" min="0" max="20" class="form-control score-input"
+                                        name="test1_{{ s.student_id }}" value="{{ s.test1 or 0 }}"
+                                        onchange="calculateTotal('{{ s.student_id }}')">
+                                </td>
+                                <td>
+                                    <input type="number" step="0.5" min="0" max="20" class="form-control score-input"
+                                        name="test2_{{ s.student_id }}" value="{{ s.test2 or 0 }}"
+                                        onchange="calculateTotal('{{ s.student_id }}')">
+                                </td>
+                                <td>
+                                    <input type="number" step="0.5" min="0" max="40" class="form-control score-input"
+                                        name="exam_{{ s.student_id }}" value="{{ s.exam or 0 }}"
+                                        onchange="calculateTotal('{{ s.student_id }}')">
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control score-input total-input"
+                                        id="total_{{ s.student_id }}" value="{{ s.marks or 0 }}" readonly>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="fas fa-users-slash fa-3x mb-3 opacity-25"></i>
+                                    <p>No students registered for this course yet.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% if students %}
+            <div class="save-section">
+                <button type="submit" class="btn btn-primary btn-save">
+                    <i class="fas fa-save me-2"></i> Save All Grades
+                </button>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<script>
+    function calculateTotal(studentId) {
+        const assignment = parseFloat(document.querySelector(`input[name="assignment_${studentId}"]`).value) || 0;
+        const test1 = parseFloat(document.querySelector(`input[name="test1_${studentId}"]`).value) || 0;
+        const test2 = parseFloat(document.querySelector(`input[name="test2_${studentId}"]`).value) || 0;
+        const exam = parseFloat(document.querySelector(`input[name="exam_${studentId}"]`).value) || 0;
+
+        const total = assignment + test1 + test2 + exam;
+
+        const targetInput = document.getElementById(`total_${studentId}`);
+        targetInput.value = total.toFixed(1);
+
+        // Visual feedback based on performance
+        if (total >= 70) {
+            targetInput.style.color = '#059669'; // Success green
+        } else if (total >= 40) {
+            targetInput.style.color = '#1e40af'; // Primary blue
+        } else {
+            targetInput.style.color = '#dc2626'; // Danger red
+        }
+
+        if (total > 100) {
+            targetInput.style.background = '#fee2e2';
+            targetInput.style.border = '2px solid #ef4444';
+        } else {
+            targetInput.style.background = '#e2e8f0';
+            targetInput.style.border = 'none';
+        }
+    }
+</script>
+{% endblock %}
