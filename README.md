@@ -49,7 +49,7 @@ A modern, comprehensive web-based platform for managing academic results, course
 1. Install dependencies: `pip install -r requirements.txt`
 2. Initialize database: `python app.py` (automatically runs `init_db`)
 3. Run the application: `python app.py` 
-4. Access at: `http://127.0.0.1:5000`
+4. Access at: `https://result-management-system-sc32.onrender.com`
 
 ---
 *Created with focus on Excellence in Education Management.*
