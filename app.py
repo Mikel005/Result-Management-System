@@ -2082,7 +2082,7 @@ def export_results():
         io.BytesIO(output.getvalue().encode('utf-8')),
         mimetype='text/csv',
         as_attachment=True,
-        attachment_filename=f'results_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+        download_name=f'results_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
     )
 
 @app.route('/audit-log')
