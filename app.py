@@ -11,7 +11,7 @@ import io
 import urllib.parse
 from datetime import datetime
 import os
-from utils import calculate_grade
+from utils import calculate_grade, get_grade_points
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-please-change')
 
@@ -483,23 +483,47 @@ def student_my_results():
 
     # Build a list for template consumption
     grouped_results = []
+    total_points = 0
+    total_cumulative_units = 0
+    
     for (academic_year, semester), rows in sorted(grouped.items(), reverse=True):
-        total_courses = len(rows)
-        total_units = sum([int(r.get('unit') or 0) for r in rows])
+        semester_units = 0
+        semester_points = 0
+        for r in rows:
+            u = int(r.get('unit') or 0)
+            gp = get_grade_points(r.get('grade', 'F'))
+            semester_units += u
+            semester_points += (u * gp)
+            
+        semester_gpa = round(semester_points / semester_units, 2) if semester_units > 0 else 0.00
+        
+        total_points += semester_points
+        total_cumulative_units += semester_units
+        
         grouped_results.append({
             'academic_year': academic_year,
             'semester': semester,
             'rows': rows,
-            'total_courses': total_courses,
-            'total_units': total_units
+            'total_courses': len(rows),
+            'total_units': semester_units,
+            'gpa': semester_gpa
         })
+
+    cgpa = round(total_points / total_cumulative_units, 2) if total_cumulative_units > 0 else 0.00
+
+    # Get AI Recommendations
+    ai_recommendations = ai_engine.generate_personalized_recommendations(student_id).get('recommendations', [])
+    ai_prediction = ai_engine.predict_performance(student_id).get('prediction', {})
 
     return render_template('student_my_results.html', 
                          grouped_results=grouped_results,
                          sessions=sessions, 
                          semesters=semesters,
                          selected_session=year_filter,
-                         selected_semester=semester_filter)
+                         selected_semester=semester_filter,
+                         cgpa=cgpa,
+                         ai_recommendations=ai_recommendations,
+                         ai_prediction=ai_prediction)
 
 @app.route('/student/logout')
 def student_logout():
@@ -551,17 +575,30 @@ def dashboard():
         
     db = get_db()
     c = db.cursor()
-    c.execute("SELECT COUNT(*) FROM students")
-    student_count = c.fetchone()[0]
-    c.execute("SELECT COUNT(*) FROM subjects")
-    subject_count = c.fetchone()[0]
-    c.execute("SELECT COUNT(*) FROM results")
-    result_count = c.fetchone()[0]
-    c.execute("SELECT COUNT(*) FROM users")
-    user_count = c.fetchone()[0]
     
-    return render_template('dashboard.html', student_count=student_count, 
-                         subject_count=subject_count, result_count=result_count, user_count=user_count)
+    # Fetch stats
+    c.execute("SELECT COUNT(*) FROM students")
+    total_students = c.fetchone()[0]
+    
+    c.execute("SELECT COUNT(*) FROM subjects")
+    total_subjects = c.fetchone()[0]
+    
+    c.execute("SELECT COUNT(*) FROM results")
+    total_results = c.fetchone()[0]
+    
+    c.execute("SELECT COUNT(*) FROM results WHERE status='pending'")
+    pending_results = c.fetchone()[0]
+    
+    # Fetch recent activities
+    c.execute("SELECT * FROM audit_log ORDER BY timestamp DESC LIMIT 10")
+    recent_activities = c.fetchall()
+    
+    return render_template('dashboard.html', 
+                         total_students=total_students, 
+                         total_subjects=total_subjects, 
+                         total_results=total_results, 
+                         pending_results=pending_results,
+                         recent_activities=recent_activities)
 
 
 @app.route('/teacher/dashboard')
@@ -1250,11 +1287,13 @@ def add_subject():
         class_id = request.form['class_id']
         department_id = request.form['department_id']
         
+        unit = request.form['unit']
+        
         try:
             db = get_db()
             c = db.cursor()
-            c.execute("INSERT INTO subjects (subject_code, subject_name, total_marks, class_id, department_id) VALUES (?, ?, ?, ?, ?)",
-                    (subject_code, subject_name, total_marks, class_id, department_id))
+            c.execute("INSERT INTO subjects (subject_code, subject_name, total_marks, class_id, department_id, unit) VALUES (?, ?, ?, ?, ?, ?)",
+                    (subject_code, subject_name, total_marks, class_id, department_id, unit))
             db.commit()
             
             log_action(session['username'], 'add_subject', f'Added subject: {subject_name} ({subject_code})')
@@ -1290,10 +1329,12 @@ def edit_subject(subject_code):
         class_id = request.form['class_id']
         department_id = request.form['department_id']
         
+        unit = request.form['unit']
+        
         try:
-            c.execute("""UPDATE subjects SET subject_name=?, total_marks=?, class_id=?, department_id=? 
+            c.execute("""UPDATE subjects SET subject_name=?, total_marks=?, class_id=?, department_id=?, unit=? 
                         WHERE subject_code=?""",
-                    (subject_name, total_marks, class_id, department_id, subject_code))
+                    (subject_name, total_marks, class_id, department_id, unit, subject_code))
             db.commit()
             
             log_action(session['username'], 'edit_subject', f'Edited subject: {subject_name} ({subject_code})')

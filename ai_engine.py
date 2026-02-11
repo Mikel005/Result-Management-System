@@ -407,7 +407,7 @@ class AIEngine:
         SELECT s.student_id, s.name, 
             AVG(r.marks) as avg_marks,
             COUNT(DISTINCT r.subject_code) as subjects_taken,
-            SUM(CASE WHEN r.grade IN ('A+', 'A') THEN 1 ELSE 0 END) as excellent_count,
+            SUM(CASE WHEN r.grade IN ('A') THEN 1 ELSE 0 END) as excellent_count,
             SUM(CASE WHEN r.marks < 50 THEN 1 ELSE 0 END) as failing_count
         FROM students s
         LEFT JOIN results r ON s.student_id = r.student_id AND r.status = 'approved'
