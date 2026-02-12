@@ -1181,7 +1181,7 @@ def add_student():
     
     return render_template('add_student.html', departments=departments)
 
-@app.route('/students/edit/<student_id>', methods=['GET', 'POST'])
+@app.route('/students/edit/<path:student_id>', methods=['GET', 'POST'])
 @login_required
 @role_required('admin', 'teacher')
 def edit_student(student_id):
@@ -1228,7 +1228,7 @@ def edit_student(student_id):
         
     return render_template('edit_student.html', student=student, departments=departments)
 
-@app.route('/students/delete/<student_id>')
+@app.route('/students/delete/<path:student_id>')
 @login_required
 @role_required('admin', 'teacher')
 def delete_student(student_id):
@@ -1316,7 +1316,7 @@ def add_subject():
     
     return render_template('add_subject.html', classes=classes, departments=departments)
 
-@app.route('/subjects/edit/<subject_code>', methods=['GET', 'POST'])
+@app.route('/subjects/edit/<path:subject_code>', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')
 def edit_subject(subject_code):
@@ -1361,7 +1361,7 @@ def edit_subject(subject_code):
     
     return render_template('edit_subject.html', subject=subject, classes=classes, departments=departments)
 
-@app.route('/subjects/delete/<subject_code>')
+@app.route('/subjects/delete/<path:subject_code>')
 @login_required
 @role_required('admin')
 def delete_subject(subject_code):
@@ -1928,7 +1928,7 @@ def ai_insights():
     classes = [row['class'] for row in c.fetchall()]
     return render_template('ai_insights.html', students=students, classes=classes)
 
-@app.route('/api/ai/predict/<student_id>')
+@app.route('/api/ai/predict/<path:student_id>')
 @login_required
 @role_required('admin', 'teacher')
 def api_predict_performance(student_id):
@@ -1943,21 +1943,21 @@ def api_at_risk_students():
     result = ai_engine.identify_at_risk_students(threshold)
     return jsonify({'students': result})
 
-@app.route('/api/ai/recommendations/<student_id>')
+@app.route('/api/ai/recommendations/<path:student_id>')
 @login_required
 @role_required('admin', 'teacher')
 def api_recommendations(student_id):
     result = ai_engine.generate_personalized_recommendations(student_id)
     return jsonify(result)
 
-@app.route('/api/ai/compare/<student_id>')
+@app.route('/api/ai/compare/<path:student_id>')
 @login_required
 @role_required('admin', 'teacher')
 def api_comparative_insights(student_id):
     result = ai_engine.get_comparative_insights(student_id)
     return jsonify(result)
 
-@app.route('/api/ai/class/<class_name>')
+@app.route('/api/ai/class/<path:class_name>')
 @login_required
 @role_required('admin', 'teacher')
 def api_class_insights(class_name):
