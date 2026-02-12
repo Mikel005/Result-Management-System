@@ -304,8 +304,11 @@ This link captures the state of your result at the time of sending.
         mail.send(msg)
         return True, "Email sent successfully"
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
         print(f"Error sending email: {e}")
-        return False, str(e)
+        print(f"Details: {error_details}")
+        return False, f"Email failed: {str(e)}"
 
 
 def send_registration_email(student_email, student_name, offering_rows):
@@ -326,8 +329,11 @@ def send_registration_email(student_email, student_name, offering_rows):
         mail.send(msg)
         return True, 'Email sent'
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
         print('Error sending registration email:', e)
-        return False, str(e)
+        print(f"Details: {error_details}")
+        return False, f"Registration email failed: {str(e)}"
 
 # Routes
 @app.route('/')
@@ -2190,6 +2196,40 @@ def delete_user(user_id):
         flash('User not found', 'error')
         
     return redirect(url_for('users'))
+
+@app.errorhandler(500)
+def internal_error(error):
+    import traceback
+    error_details = traceback.format_exc()
+    print(f"500 Internal Server Error: {error}")
+    print(error_details)
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.rollback()
+    
+    # In production, you might want to show a generic error page,
+    # but for debugging we'll flash the error if debug is on
+    if app.debug:
+        flash(f"Internal Server Error: {str(error)}", "error")
+    else:
+        flash("An unexpected error occurred. Please try again later.", "error")
+        
+    return render_template('error.html', message='Internal Server Error. Please contact admin.'), 500
+
+@app.route('/test-email-config')
+@login_required
+@role_required('admin')
+def test_email_config():
+    """Simple route to test email configuration and connectivity."""
+    msg = Message('Test Email Configuration',
+                  recipients=[app.config['MAIL_USERNAME']])
+    msg.body = "If you are reading this, your email configuration is working correctly."
+    try:
+        mail.send(msg)
+        return "Email test successful! Check your inbox."
+    except Exception as e:
+        import traceback
+        return f"Email test failed: {str(e)}<br><pre>{traceback.format_exc()}</pre>"
 
 if __name__ == '__main__':
     init_db()
